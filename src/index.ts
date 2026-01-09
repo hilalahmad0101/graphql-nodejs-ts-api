@@ -1,38 +1,48 @@
+import 'reflect-metadata'
 import { ApolloServer } from "@apollo/server";
 import { startStandaloneServer } from "@apollo/server/standalone";
-// 1. The Schema (Type Definitions)
-const typeDefs = `#graphql
-  type Book {
-    title: String
-    author: String
-  }
+import { buildSchema } from "type-graphql";
+import { DataSource } from "typeorm";
+import { Category } from "./modules/category/category.entities.js";
+import { CategoryResolver } from "./modules/category/category.resolver.js";
 
-  type Query {
-    books: [Book]
-  }
-`;
 
-// 2. The Resolvers
-const books = [
-    { title: 'The Awakening', author: 'Kate Chopin' },
-    { title: 'City of Glass', author: 'Paul Auster' },
-];
-
-const resolvers = {
-    Query: {
-        books: () => books,
-    },
-};
-
-const server = new ApolloServer({
-    typeDefs,
-    resolvers,
+const AppDataSource = new DataSource({
+    type: "postgres",
+    host: "localhost",
+    port: 5432,
+    username: "postgres",
+    password: "hilalahmad",
+    database: "node_graphql_ts",
+    synchronize: true,
+    logging: true,
+    entities: [
+        Category
+    ]
 })
+async function main() {
+    try {
+        await AppDataSource.initialize()
+        console.log('Database connected successfully');
 
-const { url } = await startStandaloneServer(server, {
-    listen: {
-        port: 4000
+        const schema = await buildSchema({
+            resolvers: [
+                CategoryResolver,
+            ],
+        })
+        const server = new ApolloServer({ schema })
+
+        const { url } = await startStandaloneServer(server, {
+            listen: {
+                port: 4000
+            }
+        })
+
+        console.log(`🚀  Server ready at: ${url}`)
+    } catch (error) {
+        const err = error as Error
+        console.log(err.message)
     }
-})
+}
 
-console.log(`🚀  Server ready at: ${url}`)
+main();

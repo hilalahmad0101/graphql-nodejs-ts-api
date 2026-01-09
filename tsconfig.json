@@ -10,6 +10,9 @@
     "declarationMap": true,
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
+    "experimentalDecorators": true, // <--- MUST BE TRUE
+    "emitDecoratorMetadata": true, // <--- MUST BE TRUE
+    "strictPropertyInitialization": false,
     "strict": true,
     "jsx": "react-jsx",
     "verbatimModuleSyntax": true,
