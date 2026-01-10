@@ -29,6 +29,7 @@ async function main() {
             resolvers: [
                 CategoryResolver,
             ],
+            validate: true
         })
         const server = new ApolloServer({ schema })
 

@@ -1,59 +1,38 @@
+// category.resolver.ts
 import { Arg, ID, Mutation, Query, Resolver } from "type-graphql";
 import { Category } from "./category.entities.js";
+import { CategoryService } from "./category.service.js";
 import { CreateCategoryInput, UpdateCategoryInput } from "./category.input.js";
 
 @Resolver(Category)
 export class CategoryResolver {
-    // 2. Add this Query block
+    // Initialize the service
+    private categoryService = new CategoryService();
+
     @Query(() => [Category])
     async categories() {
-        return await Category.find();
+        return await this.categoryService.findAll();
+    }
+
+    @Query(() => Category)
+    async getCategory(@Arg("id", () => ID) id: number) {
+        return await this.categoryService.findById(id);
     }
 
     @Mutation(() => Category)
     async createCategory(
-        @Arg("data", () => CreateCategoryInput) data: CreateCategoryInput
+        @Arg("data", () => CreateCategoryInput) data: CreateCategoryInput // Validation happens automatically here
     ) {
-        // Create and Save to Database
-        const category = Category.create({
-            name: data.name
-        });
-
-        await category.save();
-        return category;
-    }
-
-
-    @Query(() => Category)
-    async getCategoryById(@Arg("id", () => ID) id: number) {
-        const category = await Category.findOneBy({ id });
-        if (!category) {
-            throw new Error(`Category with ID ${id} was not found in the database.`);
-        }
-        return category;
+        return await this.categoryService.create(data);
     }
 
     @Mutation(() => Category)
-    async updateCategory(
-        @Arg("data", () => UpdateCategoryInput) data: UpdateCategoryInput
-    ) {
-        const category = await Category.findOneBy({ id: data.id });
-        if (!category) {
-            throw new Error(`Category with ID ${data.id} was not found in the database.`);
-        }
-        category.name = data.name;
-        await category.save();
-        return category;
+    async updateCategory(@Arg("data", () => UpdateCategoryInput) data: UpdateCategoryInput) {
+        return await this.categoryService.update(data);
     }
-
 
     @Mutation(() => Category)
     async deleteCategory(@Arg("id", () => ID) id: number) {
-        const category = await Category.findOneBy({ id });
-        if (!category) {
-            throw new Error(`Category with ID ${id} was not found in the database.`);
-        }
-        await category.remove();
-        return category;
+        return await this.categoryService.delete(id);
     }
 }

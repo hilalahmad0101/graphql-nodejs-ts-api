@@ -3,7 +3,7 @@
     "rootDir": "./src",
     "outDir": "./dist",
     "module": "nodenext",
-    "target": "esnext",
+    "target": "es2021",
     "types": [],
     "sourceMap": true,
     "declaration": true,
